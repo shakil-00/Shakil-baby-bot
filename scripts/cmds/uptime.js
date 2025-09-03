@@ -1,94 +1,169 @@
+const { GoatWrapper } = require("fca-liane-utils");
 const os = require("os");
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+const fs = require("fs");
+const path = require("path");
 
-function formatTime(seconds) {
-  const days = Math.floor(seconds / (3600 * 24));
-  const hours = Math.floor((seconds % (3600 * 24)) / 3600);
+const startTime = Date.now();
+
+function formatUptime(seconds) {
+  const days = Math.floor(seconds / (24 * 3600));
+  const hours = Math.floor((seconds % (24 * 3600)) / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = Math.floor(seconds % 60);
   return `${days}d ${hours}h ${minutes}m ${secs}s`;
 }
 
-function createProgressBar(percentage) {
-  const totalBars = 20;
-  const filledBars = Math.round((totalBars * percentage) / 100);
-  const emptyBars = totalBars - filledBars;
-  return "█".repeat(filledBars) + "░".repeat(emptyBars);
+function formatBytes(bytes) {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+}
+
+function getApprovalStatus() {
+  try {
+    if (global.goat?.config?.APPROVAL_REQUIRED !== undefined) return global.goat.config.APPROVAL_REQUIRED;
+    if (global.config?.APPROVAL_REQUIRED !== undefined) return global.config.APPROVAL_REQUIRED;
+
+    const configPath = path.join(__dirname, "..", "config.json");
+    if (fs.existsSync(configPath)) {
+      const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+      return config.APPROVAL_REQUIRED || false;
+    }
+  } catch {}
+  return false;
+}
+
+function getNetworkInfo() {
+  const interfaces = os.networkInterfaces();
+  const result = [];
+  for (const [name, nets] of Object.entries(interfaces)) {
+    for (const net of nets) {
+      if (net.family === "IPv4" && !net.internal) {
+        result.push(`${name}: ${net.address}`);
+        break;
+      }
+    }
+  }
+  return result.length > 0 ? result.join(", ") : "No network info";
 }
 
 module.exports = {
   config: {
     name: "uptime",
-    aliases: ["up", "upt", "ut"],
-    version: "4.0-premium",
-    author: "𝗕𝗔𝗗𝗛𝗢𝗡 𝗥𝗢𝗛𝗠𝗔𝗡 💀✨",
+    aliases: ["up", "upt", "stats"],
+    version: "2.2",
+    author: "Badhon + Fix by BaYjid",
     role: 0,
-    shortDescription: {
-      en: "Premium Uptime & System Stats"
-    },
-    longDescription: {
-      en: "Displays system uptime, performance, memory usage, and other system stats in a premium UI format."
-    },
-    category: "tools",
-    guide: {
-      en: "{pn}"
-    }
+    shortDescription: { en: "Full bot & system status" },
+    longDescription: { en: "Check bot uptime, system info, media status, etc." },
+    category: "Utility",
+    guide: { en: "Type {pn} to check bot stats." }
   },
 
-  onStart: async function ({ api, event }) {
+  onStart: async function ({ api, event, usersData, threadsData }) {
     try {
-      const start = Date.now();
-
-      const uptimeInSeconds = process.uptime();
-      const formattedUptime = formatTime(uptimeInSeconds);
-
-      const ping = Date.now() - start;
-      const maxUptimeSeconds = 86400;
-      const uptimePercent = Math.min((uptimeInSeconds / maxUptimeSeconds) * 100, 100).toFixed(2);
-      const uptimeProgressBar = createProgressBar(uptimePercent);
-
-      const cpuLoad = os.loadavg()[0].toFixed(2);
+      const commandStartTime = Date.now();
+      const serverUptime = process.uptime();
       const totalMem = os.totalmem();
       const freeMem = os.freemem();
-      const usedMemPercent = (((totalMem - freeMem) / totalMem) * 100).toFixed(2);
-      const userName = os.userInfo().username;
+      const usedMem = totalMem - freeMem;
+      const memoryUsage = (usedMem / totalMem * 100).toFixed(1);
 
-      const quotes = [
-        "⚙️ “Coding is not just code, it's a lifestyle.”",
-        "🚀 “Wake up, Code, Repeat.”",
-        "🌙 “Dream in code, live in reality.”",
-        "🤖 “Bots run the world silently.”"
-      ];
-      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      const approvalStatus = getApprovalStatus();
+      const networkInfo = getNetworkInfo();
 
-      const uptimeMessage = `
-  〔 👑 𝗣𝗥𝗘𝗠𝗜𝗨𝗠 𝗨𝗣𝗧𝗜𝗠𝗘 𝗥𝗘𝗣𝗢𝗥𝗧 👑 〕
+      let threadInfo;
+      try {
+        threadInfo = await new Promise((resolve) => {
+          api.getThreadInfo(event.threadID, (err, info) => {
+            if (err) resolve(null);
+            else resolve(info);
+          });
+        });
+      } catch {
+        threadInfo = null;
+      }
 
-🟢 𝗨𝗣𝗧𝗜𝗠𝗘
-⏱️ ${formattedUptime}
-📈 [ ${uptimeProgressBar} ] ${uptimePercent}%
+      let mediaStatus = "⚠ Not Available";
+      let reactionStatus = "⚠ Not Available";
+      if (threadInfo?.restrictions) {
+        mediaStatus = threadInfo.restrictions.sendMedia ? "❌ Blocked" : "✅ Allowed";
+        reactionStatus = threadInfo.restrictions.addReaction ? "❌ Blocked" : "✅ Allowed";
+      } else if (threadInfo?.emoji !== undefined) {
+        mediaStatus = "✅ Allowed";
+        reactionStatus = "✅ Enabled";
+      }
 
-📡 𝗣𝗘𝗥𝗙𝗢𝗥𝗠𝗔𝗡𝗖𝗘
-⚡ Ping: ${ping}% ms
-🤖 Bot: Melisa
-🔖 Version: v1.0
+      const allUsers = await usersData.getAll();
+      const allThreads = await threadsData.getAll();
 
-🖥️ 𝗦𝗬𝗦𝗧𝗘𝗠 𝗦𝗧𝗔𝗧𝗨𝗦
-👤 User: ${userName}
-💾 Memory Usage: ${usedMemPercent}%
-💻 CPU Load: ${cpuLoad}
+      const options = { timeZone: "Asia/Dhaka", hour12: false };
+      const currentDate = new Date().toLocaleDateString("en-BD", options);
+      const currentTime = new Date().toLocaleTimeString("en-BD", options);
 
-💬 𝗠𝗢𝗧𝗜𝗩𝗔𝗧𝗜𝗢𝗡
-${randomQuote}
+      const commandExecutionTime = Date.now() - commandStartTime;
+      const userThreadRatio = allThreads.length > 0 ? (allUsers.length / allThreads.length).toFixed(2) : "N/A";
 
-   〔 ✦ 𝗕𝗔𝗗𝗛𝗢𝗡 𝗥𝗢𝗛𝗠𝗔𝗡 ✦ 〕
-`;
+      const msg =
+`┌───│𝗕𝗢𝗧 𝗨𝗣𝗧𝗜𝗠𝗘 𝗦𝗧𝗔𝗧𝗨𝗦│───
+│
+├ ➤ Uptime     : ${formatUptime(serverUptime)}
+│
+├─── [ 🖥 ꯱ʏꜱᴛᴇᴍ ɪɴꜰᴏ 🖥 ] ───
+│
+├ ➤ OS         : ${os.type()} (${os.platform()})
+├ ➤ Arch       : ${os.arch()}
+├ ➤ Node       : ${process.version}
+├ ➤ OS Uptime  : ${formatUptime(os.uptime())}
+├ ➤ CPU        : ${os.cpus()[0].model.split(" @")[0]}
+├ ➤ Cores      : ${os.cpus().length}
+├ ➤ RAM Usage  : ${formatBytes(usedMem)} / ${formatBytes(totalMem)} (${memoryUsage}%)
+│
+├─── [ ⚙ ʙᴏᴛ ᴄᴏɴꜰɪɢ ⚙ ] ───
+│
+├ ➤ Approval   : ${approvalStatus ? "✅ Enabled" : "❌ Disabled"}
+├ ➤ PID        : ${process.pid}
+│
+├─── [ 👥 ᴜꜱᴇʀ ꜱᴛᴀᴛꜱ 👥 ] ───
+│
+├ ➤ Users      : ${allUsers.length}
+├ ➤ Threads    : ${allThreads.length}
+├ ➤ TID        : ${event.threadID}
+├ ➤ Members    : ${threadInfo ? threadInfo.participantIDs.length : "Unknown"}
+├ ➤ Ratio      : ${userThreadRatio}
+│
+├─── [ 🌐 ɴᴇᴛᴡᴏʀᴋ 🌐 ] ───
+│
+├ ➤ Ping       : ${commandExecutionTime}ms
+├ ➤ Network    : ${networkInfo}
+│
+├─── [ 🕒 ᴛɪᴍᴇ & ᴅᴀᴛᴇ 🕒 ] ───
+│
+├ ➤ Date       : ${currentDate}
+├ ➤ Time       : ${currentTime}
+├ ➤ Start Time : ${new Date(startTime).toLocaleString()}
+│
+├─── [ 🎥 ᴍᴇᴅɪᴀ ꜱᴛᴀᴛᴜꜱ 🎥 ] ───
+│
+├ ➤ Media      : ${mediaStatus}
+├ ➤ Reactions  : ${reactionStatus}
+│
+└─── ✨ 𝚂𝙷𝙰𝙺𝙸𝙻 ✨ ───`;
 
-      await delay(300);
-      await api.sendMessage(uptimeMessage, event.threadID);
+      api.sendMessage(msg, event.threadID);
     } catch (err) {
-      console.error("Uptime command error:", err);
-      return api.sendMessage("❌ An error occurred while fetching uptime data.", event.threadID);
+      console.error(err);
+      api.sendMessage("❌ Error: Failed to fetch bot status.", event.threadID);
     }
   }
 };
+
+// Apply GoatWrapper no-prefix support
+try {
+  const wrapper = new GoatWrapper(module.exports);
+  if (wrapper && typeof wrapper.applyNoPrefix === "function") {
+    wrapper.applyNoPrefix({ allowPrefix: true });
+  }
+} catch {}
