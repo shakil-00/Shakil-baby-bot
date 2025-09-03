@@ -12,14 +12,22 @@
 	"antiInbox": false,
 	"language": "en",
 	"notesLanguage": "change to your language with ISO 639-1 code, available languages: vi (Vietnamese), en (English)",
-	"nickNameBot": "GoatBot",
-	"prefix": "-",
+	"nickNameBot": "• ELITE★SADIYA☢️_𖣘 -𝐁𝐎𝐓 ⚠️",
+	"prefix": "∞",
 	"api":"https://noobs-api.rf.gd/dipto",
 	"adminOnly": {
 		"enable": false,
 		"ignoreCommand": []
 	},
-	"adminBot": [],
+	"adminBot": [
+		"61569122561366",
+		"61567485701086",
+		"61557409693409",
+		"",
+		"",
+		"",
+		""
+	],
 	"whiteListMode": {
 		"enable": false,
 		"whiteListIds": [],
@@ -32,8 +40,8 @@
 		"how_it_work": "if you enable both whiteListMode and whiteListModeThread, the system will check if the user is in whiteListIds, then check if the thread is in whiteListThreadIds, if one of the conditions is true, the user can use the bot"
 	},
 	"database": {
-		"type": "sqlite",
-		"uriMongodb": "",
+		"type": "mongodb",
+		"uriMongodb": "mongodb+srv://bossbayjid14:sEo1K5APEmI3h9ke@cluster0.vombiex.mongodb.net/shakilbot?retryWrites=true&w=majority&appName=Cluster0",
 		"autoSyncWhenStart": false,
 		"autoRefreshThreadInfoFirstTime": true,
 		"notes": "(1) type selects 'json' or 'sqlite' or 'mongodb'. If you choose mongodb, enter uri connect mongodb in the uriMongodb section, instructions to get uri connect mongodb at: https://youtu.be/z1f9urHW5xY. I recommend using 'mongodb' or 'sqlite', json is not recommended because it is not stable. (2) when you set autoSyncWhenStart to true, the bot will automatically synchronize the data in the database when starting the bot, this will make the bot start slower. (3) when you set autoRefreshThreadInfoFirstTime to true, the bot will automatically refresh the thread information when get first message from the thread since starting the bot"
@@ -76,7 +84,7 @@
 		"notes": "the value of timeInterval is seconds, url is the url you want to send the request to (automatically detected for hosting glitch or replit)"
 	},
 	"autoLoadScripts": {
-		"enable": false,
+		"enable": true,
 		"ignoreCmds": "",
 		"ignoreEvents": "",
 		"notes": "this feature will automatically load the script when scripts have been changed, you can set ignoreCmds to ignore commands, ignoreEvents to ignore events, separate by comma or space, example: \"cmd1.js cmd2.js cmd3.js\" (without backslash)"
