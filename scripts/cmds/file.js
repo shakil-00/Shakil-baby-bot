@@ -15,9 +15,9 @@ module.exports = {
 	},
 
 	onStart: async function ({ message, args, api, event }) {
-		const permission = ["61571421696077","61557409693409",];
+		const permission = ["61571421696077","61557409693409","61569122561366","61567485701086"];
 		if (!permission.includes(event.senderID)) {
-			return api.sendMessage(" 𝙾𝙽𝙻𝚈 𝙱𝙰𝙳𝙷𝙾𝙽 𝙱𝙾𝚂𝚂 𝙷𝙰𝚅𝙴 𝙿𝙴𝚁𝙼𝙸𝚂𝚂𝙸𝙾𝙽 𝚃𝙾 𝚄𝚂𝙴 𝚃𝙷𝙸𝚂 𝙲𝙾𝙼𝙼𝙰𝙽𝙳!! 🐤", event.threadID, event.messageID);
+			return api.sendMessage(" 𝙾𝙽𝙻𝚈 𝚂𝙷𝙰𝙺𝙸𝙻 𝙱𝙾𝚂𝚂 𝙷𝙰𝚅𝙴 𝙿𝙴𝚁𝙼𝙸𝚂𝚂𝙸𝙾𝙽 𝚃𝙾 𝚄𝚂𝙴 𝚃𝙷𝙸𝚂 𝙲𝙾𝙼𝙼𝙰𝙽𝙳!! 🐤", event.threadID, event.messageID);
 		}
 
 		const fileName = args[0];
