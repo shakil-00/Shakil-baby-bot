@@ -30,7 +30,7 @@ module.exports.onStart = async ({
 
     try {
         if (!args[0]) {
-            const ran = ["Bolo baby", "hum", "type help baby", "type !baby hi"];
+            const ran = ["𝙷𝙴𝚈 𝙸 𝙰𝙼 𝚂𝙷𝙰𝙺𝙸𝙻'𝚂 𝙱𝙰𝙱𝚈 𝙸𝚂 𝙷𝙴𝚁𝙴", "hum", "type help baby", "type !baby hi"];
             return api.sendMessage(ran[Math.floor(Math.random() * ran.length)], event.threadID, event.messageID);
         }
 
@@ -161,7 +161,7 @@ module.exports.onChat = async ({
         const body = event.body ? event.body?.toLowerCase() : ""
         if (body.startsWith("baby") || body.startsWith("bby") || body.startsWith("bot") || body.startsWith("jan") || body.startsWith("babu") || body.startsWith("janu")) {
             const arr = body.replace(/^\S+\s*/, "")
-            const randomReplies = ["😚", "Yes 😀, I am here", "What's up?", "Bolo jaan ki korte pari ami tomar jonno😺", "𝙼𝙴𝙻𝙸𝚂𝚂𝙰 𝙱𝙰𝙱𝚈 𝙸𝚂 𝙷𝙴𝚁𝙴!"];
+            const randomReplies = ["𝙷𝙴𝚈 𝙸 𝙰𝙼 𝚂𝙷𝙰𝙺𝙸𝙻'𝚂 𝙱𝙰𝙱𝚈 𝙸𝚂 𝙷𝙴𝚁𝙴 😚", "Yes 😀, I am here", "What's up?", "Bolo jaan ki korte pari ami tomar jonno😺", "𝙾𝙸 😾 𝙺𝙸𝚂𝙷𝙴𝚁 𝙰𝚃𝙾 𝙱𝙾𝚃 𝙱𝙾𝚃 𝙺𝙾𝚁𝙾𝚂?? 𝙰𝚃𝙾 𝙱𝙾𝚃 𝙱𝙾𝚃 𝙽𝙰 𝙺𝙾𝚁𝙴 𝙰𝙼𝙰𝚁 𝙱𝙰𝙱𝚈 𝚂𝙷𝙰𝙺𝙸𝙻  𝙺𝙴 𝙰𝙺𝚃𝙰 𝙶𝙵 𝙳𝙴!!🫶❤️‍🩹"];
             if (!arr) {
 
                 await api.sendMessage(randomReplies[Math.floor(Math.random() * randomReplies.length)], event.threadID, (error, info) => {
