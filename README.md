@@ -30,9 +30,9 @@ Member of an enthusiastic developer community focused on creating innovative sol
 
 <div align="center">
   
-![Sakil's GitHub stats](https://github-readme-stats.vercel.app/api?username=YOUR_USERNAME&show_icons=true&theme=radical)
+![Sakil's GitHub stats](https://github-readme-stats.vercel.app/api?username=shakil-00&show_icons=true&theme=radical)
 
-![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=YOUR_USERNAME&layout=compact&theme=radical)
+![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=shakil-00&layout=compact&theme=radical)
 
 </div>
 
